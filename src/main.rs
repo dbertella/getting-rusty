@@ -31,8 +31,6 @@ impl Company {
     }
 }
 
-
-
 struct Contacts {
     people: HashMap<String, ContactsRecord>,
     companies: HashMap<String, ContactsRecord>,
@@ -56,12 +54,32 @@ impl Contacts {
         self.companies.insert(key, ContactsRecord::Company(company));
     }
 
-    fn search_person(&self, short_name: &str) -> Option<&ContactsRecord> {
-        self.people.get(short_name)
+    fn search_person(&self, query: &str) -> Vec<&ContactsRecord> {
+        let mut people_matched = Vec::new();
+        for (_, v) in self.people.iter() {
+            let string_contact = match v {
+                ContactsRecord::Person(v) => format!("{}, {}, {}", v.name, v.short_name, v.email),
+                _ => "".to_string(),
+            };
+            if string_contact.contains(query) {
+                people_matched.push(v);
+            }
+        }
+        people_matched
     }
 
-    fn search_company(&self, short_name: &str) -> Option<&ContactsRecord> {
-        self.companies.get(short_name)
+    fn search_company(&self, query: &str) -> Vec<&ContactsRecord> {
+        let mut companies_matched = Vec::new();
+        for (_, v) in self.companies.iter() {
+            let string_contact = match v {
+                ContactsRecord::Company(v) => format!("{}, {}, {}", v.name, v.short_name, v.email),
+                _ => "".to_string(),
+            };
+            if string_contact.contains(query) {
+                companies_matched.push(v);
+            }
+        }
+        companies_matched
     }
 }
 
@@ -70,12 +88,22 @@ enum ContactsRecord {
     Company(Company),
 }
 
-fn print_results(contact: Option<&ContactsRecord>) {
-    match contact {
-        Some(ContactsRecord::Person(v)) => println!("{}, {}, {}", v.name, v.short_name, v.email),
-        Some(ContactsRecord::Company(v)) => println!("{}, {}, {}", v.name, v.short_name, v.email),
-        None => println!("No match")
+fn print_results(results: &Vec<&ContactsRecord>) {
+    if results.len() == 0 {
+        println!("No result")
+    } else {
+        for res in results {
+            match res {
+                ContactsRecord::Person(res) => {
+                    println!("Person: {}, {}, {}", res.name, res.short_name, res.email)
+                }
+                ContactsRecord::Company(res) => {
+                    println!("Company: {}, {}, {}", res.name, res.short_name, res.email)
+                }
+            }
+        }
     }
+
 }
 
 fn create_contacts() -> Contacts {
@@ -92,8 +120,8 @@ fn create_contacts() -> Contacts {
 
 fn main() {
     let contacts = create_contacts();
-    print_results(contacts.search_person("Susan"));
-    print_results(contacts.search_company("Bla"));
-    print_results(contacts.search_person("Sophy"));
-    print_results(contacts.search_company("ADSK"));
+    print_results(&contacts.search_company("Bla"));
+    print_results(&contacts.search_company("ADSK"));
+    print_results(&contacts.search_person("Susan"));
+    print_results(&contacts.search_person("S"));
 }
