@@ -54,32 +54,34 @@ impl Contacts {
         self.companies.insert(key, ContactsRecord::Company(company));
     }
 
-    fn search_person(&self, query: &str) -> Vec<&ContactsRecord> {
-        let mut people_matched = Vec::new();
-        for (_, v) in self.people.iter() {
-            let string_contact = match v {
-                ContactsRecord::Person(v) => format!("{}, {}, {}", v.name, v.short_name, v.email),
-                _ => "".to_string(),
-            };
-            if string_contact.contains(query) {
-                people_matched.push(v);
+    fn search_person(&self, query: &str) -> QueryResult {
+        let mut results = Vec::new();
+        let result = QueryResult::new(query);
+        for contact in self.people.values() {
+            if let ContactsRecord::Person(Person { name, short_name, email }) = contact {
+                if name.contains(query) ||
+                   short_name.contains(query) ||
+                   email.contains(query) {
+                    result.contacts.push(contact);
+                }
             }
         }
-        people_matched
+        result
     }
 
-    fn search_company(&self, query: &str) -> Vec<&ContactsRecord> {
-        let mut companies_matched = Vec::new();
-        for (_, v) in self.companies.iter() {
-            let string_contact = match v {
-                ContactsRecord::Company(v) => format!("{}, {}, {}", v.name, v.short_name, v.email),
-                _ => "".to_string(),
-            };
-            if string_contact.contains(query) {
-                companies_matched.push(v);
+    fn search_company(&self, query: &str) -> QueryResult {
+        let mut results = Vec::new();
+        let result = QueryResult::new(query);
+        for contact in self.companies.values() {
+            if let ContactsRecord::Company(Company { name, short_name, email }) = contact {
+                if name.contains(query) ||
+                   short_name.contains(query) ||
+                   email.contains(query) {
+                    result.contacts.push(contact);
+                }
             }
         }
-        companies_matched
+        result
     }
 }
 
@@ -88,17 +90,31 @@ enum ContactsRecord {
     Company(Company),
 }
 
-fn print_results(results: &Vec<&ContactsRecord>) {
-    if results.len() == 0 {
-        println!("No result")
+struct QueryResult {
+    query: String,
+    contacts: Vec<ContactsRecord>,
+}
+
+impl QueryResult {
+    fn new(query: &str) -> Self {
+        Self {
+            query: query.to_string(),
+            contacts: Vec::new(),
+        }
+    }
+}
+
+fn print_results(result: QueryResult) {
+    if result.contacts.is_empty() {
+        println!("No result with query {}", result.query)
     } else {
-        for res in results {
+        for res in result.contacts {
             match res {
-                ContactsRecord::Person(res) => {
-                    println!("Person: {}, {}, {}", res.name, res.short_name, res.email)
+                ContactsRecord::Person(r) => {
+                    println!("Person with query {}: {}, {}, {}", result.query, r.name, r.short_name, r.email)
                 }
-                ContactsRecord::Company(res) => {
-                    println!("Company: {}, {}, {}", res.name, res.short_name, res.email)
+                ContactsRecord::Company(r) => {
+                    println!("Company with query {}: {}, {}, {}", result.query, r.name, r.short_name, r.email)
                 }
             }
         }
@@ -120,8 +136,8 @@ fn create_contacts() -> Contacts {
 
 fn main() {
     let contacts = create_contacts();
-    print_results(&contacts.search_company("Bla"));
-    print_results(&contacts.search_company("ADSK"));
-    print_results(&contacts.search_person("Susan"));
-    print_results(&contacts.search_person("S"));
+    print_results(contacts.search_company("Bla"));
+    print_results(contacts.search_company("ADSK"));
+    print_results(contacts.search_person("Susan"));
+    print_results(contacts.search_person("S"));
 }
