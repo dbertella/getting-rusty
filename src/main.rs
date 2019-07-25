@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[derive(Clone)]
 struct Person {
     name: String,
     short_name: String,
@@ -15,6 +16,8 @@ impl Person {
         }
     }
 }
+
+
 struct Company {
     name: String,
     short_name: String,
@@ -45,24 +48,21 @@ impl Contacts {
     }
 
     fn register_person(&mut self, person: Person) {
-        let key = (&person.short_name).to_string();
-        self.people.insert(key, ContactsRecord::Person(person));
+        self.people.insert(person.short_name.clone(), ContactsRecord::Person(person));
     }
 
     fn register_company(&mut self, company: Company) {
-        let key = (&company.short_name).to_string();
-        self.companies.insert(key, ContactsRecord::Company(company));
+        self.companies.insert(company.short_name.clone(), ContactsRecord::Company(company));
     }
 
     fn search_person(&self, query: &str) -> QueryResult {
-        let mut results = Vec::new();
         let result = QueryResult::new(query);
         for contact in self.people.values() {
             if let ContactsRecord::Person(Person { name, short_name, email }) = contact {
                 if name.contains(query) ||
                    short_name.contains(query) ||
                    email.contains(query) {
-                    result.contacts.push(contact);
+                    result.contacts.push(contact.clone());
                 }
             }
         }
@@ -70,14 +70,13 @@ impl Contacts {
     }
 
     fn search_company(&self, query: &str) -> QueryResult {
-        let mut results = Vec::new();
         let result = QueryResult::new(query);
         for contact in self.companies.values() {
             if let ContactsRecord::Company(Company { name, short_name, email }) = contact {
                 if name.contains(query) ||
                    short_name.contains(query) ||
                    email.contains(query) {
-                    result.contacts.push(contact);
+                    result.contacts.push(contact.clone());
                 }
             }
         }
