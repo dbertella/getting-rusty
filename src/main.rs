@@ -17,7 +17,7 @@ impl Person {
     }
 }
 
-
+#[derive(Clone)]
 struct Company {
     name: String,
     short_name: String,
@@ -34,6 +34,7 @@ impl Company {
     }
 }
 
+#[derive(Clone)]
 struct Contacts {
     people: HashMap<String, ContactsRecord>,
     companies: HashMap<String, ContactsRecord>,
@@ -56,7 +57,7 @@ impl Contacts {
     }
 
     fn search_person(&self, query: &str) -> QueryResult {
-        let result = QueryResult::new(query);
+        let mut result = QueryResult::new(query);
         for contact in self.people.values() {
             if let ContactsRecord::Person(Person { name, short_name, email }) = contact {
                 if name.contains(query) ||
@@ -70,7 +71,7 @@ impl Contacts {
     }
 
     fn search_company(&self, query: &str) -> QueryResult {
-        let result = QueryResult::new(query);
+        let mut result = QueryResult::new(query);
         for contact in self.companies.values() {
             if let ContactsRecord::Company(Company { name, short_name, email }) = contact {
                 if name.contains(query) ||
@@ -84,6 +85,7 @@ impl Contacts {
     }
 }
 
+#[derive(Clone)]
 enum ContactsRecord {
     Person(Person),
     Company(Company),
