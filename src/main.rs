@@ -1,6 +1,7 @@
 use std::collections::HashMap;
+use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Person {
     name: String,
     short_name: String,
@@ -17,7 +18,7 @@ impl Person {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Company {
     name: String,
     short_name: String,
@@ -85,12 +86,13 @@ impl Contacts {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 enum ContactsRecord {
     Person(Person),
     Company(Company),
 }
 
+#[derive(Debug)]
 struct QueryResult {
     query: String,
     contacts: Vec<ContactsRecord>,
@@ -105,23 +107,33 @@ impl QueryResult {
     }
 }
 
-fn print_results(result: QueryResult) {
-    if result.contacts.is_empty() {
-        println!("No result with query {}", result.query)
-    } else {
-        for res in result.contacts {
-            match res {
-                ContactsRecord::Person(r) => {
-                    println!("Person with query {}: {}, {}, {}", result.query, r.name, r.short_name, r.email)
+impl fmt::Display for QueryResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.contacts.is_empty() {
+            writeln!(f, "No result with query {}", self.query)
+        } else {
+            write!(f, "[")?;
+            for res in self.contacts.clone() {
+                match res {
+                    ContactsRecord::Person(r) => {
+                        write!(f, "Person with query {}: {}, {}, {}", self.query, r.name, r.short_name, r.email)?;
+                    }
+                    ContactsRecord::Company(r) => {
+                        write!(f, "Company with query {}: {}, {}, {}", self.query, r.name, r.short_name, r.email)?;
+                    }
                 }
-                ContactsRecord::Company(r) => {
-                    println!("Company with query {}: {}, {}, {}", result.query, r.name, r.short_name, r.email)
-                }
+                write!(f, ", ")?;
             }
+            write!(f, "]")
+
         }
     }
-
 }
+
+// fn print_results(result: QueryResult) {
+
+
+// }
 
 fn create_contacts() -> Contacts {
     let mut contacts = Contacts::new();
@@ -137,8 +149,8 @@ fn create_contacts() -> Contacts {
 
 fn main() {
     let contacts = create_contacts();
-    print_results(contacts.search_company("Bla"));
-    print_results(contacts.search_company("ADSK"));
-    print_results(contacts.search_person("Susan"));
-    print_results(contacts.search_person("S"));
+    println!("{}", contacts.search_company("Bla"));
+    println!("{}", contacts.search_company("ADSK"));
+    println!("{}", contacts.search_person("Susan"));
+    println!("{}", contacts.search_person("S"));
 }
