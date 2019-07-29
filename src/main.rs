@@ -84,6 +84,12 @@ impl Contacts {
         }
         result
     }
+
+    fn search_all(&self, query: &str) -> QueryResult {
+        let mut result = self.search_person(query);
+        result.contacts.extend(self.search_company(query).contacts);
+        result
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -143,7 +149,6 @@ fn create_contacts() -> Contacts {
     contacts.register_company(Company::new("Twitter", "TWTR", "info@twitter.com"));
     contacts.register_company(Company::new("Autodesk", "ADSK", "help@autodesk.com"));
     contacts
-
 }
 
 
@@ -152,5 +157,5 @@ fn main() {
     println!("{}", contacts.search_company("Bla"));
     println!("{}", contacts.search_company("ADSK"));
     println!("{}", contacts.search_person("Susan"));
-    println!("{}", contacts.search_person("S"));
+    println!("{}", contacts.search_all("S"));
 }
