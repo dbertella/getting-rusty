@@ -50,20 +50,25 @@ impl Contacts {
     }
 
     fn register_person(&mut self, person: Person) {
-        self.people.insert(person.short_name.clone(), ContactsRecord::Person(person));
+        self.people
+            .insert(person.short_name.clone(), ContactsRecord::Person(person));
     }
 
     fn register_company(&mut self, company: Company) {
-        self.companies.insert(company.short_name.clone(), ContactsRecord::Company(company));
+        self.companies
+            .insert(company.short_name.clone(), ContactsRecord::Company(company));
     }
 
     fn search_person(&self, query: &str) -> QueryResult {
         let mut result = QueryResult::new(query);
         for contact in self.people.values() {
-            if let ContactsRecord::Person(Person { name, short_name, email }) = contact {
-                if name.contains(query) ||
-                   short_name.contains(query) ||
-                   email.contains(query) {
+            if let ContactsRecord::Person(Person {
+                name,
+                short_name,
+                email,
+            }) = contact
+            {
+                if name.contains(query) || short_name.contains(query) || email.contains(query) {
                     result.contacts.push(contact.clone());
                 }
             }
@@ -74,10 +79,13 @@ impl Contacts {
     fn search_company(&self, query: &str) -> QueryResult {
         let mut result = QueryResult::new(query);
         for contact in self.companies.values() {
-            if let ContactsRecord::Company(Company { name, short_name, email }) = contact {
-                if name.contains(query) ||
-                   short_name.contains(query) ||
-                   email.contains(query) {
+            if let ContactsRecord::Company(Company {
+                name,
+                short_name,
+                email,
+            }) = contact
+            {
+                if name.contains(query) || short_name.contains(query) || email.contains(query) {
                     result.contacts.push(contact.clone());
                 }
             }
@@ -86,8 +94,29 @@ impl Contacts {
     }
 
     fn search_all(&self, query: &str) -> QueryResult {
-        let mut result = self.search_person(query);
-        result.contacts.extend(self.search_company(query).contacts);
+        let mut result = QueryResult::new(query);
+        for contact in self.companies.values().chain(self.people.values()) {
+            match contact {
+                ContactsRecord::Company(Company {
+                    name,
+                    short_name,
+                    email,
+                }) => {
+                    if name.contains(query) || short_name.contains(query) || email.contains(query) {
+                        result.contacts.push(contact.clone());
+                    }
+                }
+                ContactsRecord::Person(Person {
+                    name,
+                    short_name,
+                    email,
+                }) => {
+                    if name.contains(query) || short_name.contains(query) || email.contains(query) {
+                        result.contacts.push(contact.clone());
+                    }
+                }
+            }
+        }
         result
     }
 }
@@ -118,20 +147,39 @@ impl fmt::Display for QueryResult {
         if self.contacts.is_empty() {
             writeln!(f, "No result with query {}", self.query)
         } else {
-            write!(f, "[")?;
+            let mut status = write!(f, "[");
+            if let Err(_) = status {
+                return status;
+            }
             for res in self.contacts.clone() {
                 match res {
                     ContactsRecord::Person(r) => {
-                        write!(f, "Person with query {}: {}, {}, {}", self.query, r.name, r.short_name, r.email)?;
+                        status = write!(
+                            f,
+                            "Person with query {}: {}, {}, {}",
+                            self.query, r.name, r.short_name, r.email
+                        );
+                        if let Err(_) = status {
+                            return status;
+                        }
                     }
                     ContactsRecord::Company(r) => {
-                        write!(f, "Company with query {}: {}, {}, {}", self.query, r.name, r.short_name, r.email)?;
+                        status = write!(
+                            f,
+                            "Company with query {}: {}, {}, {}",
+                            self.query, r.name, r.short_name, r.email
+                        );
+                        if let Err(_) = status {
+                            return status;
+                        }
                     }
                 }
-                write!(f, ", ")?;
+                status = write!(f, ", ");
+                if let Err(_) = status {
+                    return status;
+                }
             }
             write!(f, "]")
-
         }
     }
 }
