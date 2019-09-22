@@ -1,9 +1,16 @@
 struct NumSeq<T>
     where T: Fn(&mut Vec<usize>)
 {
-    stack: Vec<usize>,
     calculation: T,
+    stack: Vec<usize>,
 }
+
+
+// impl<T> NumSeqIter for NumSeq<T>
+//     where T: Fn(&mut Vec<usize>)
+// {
+    
+// }
 
 impl<T> NumSeq<T>
     where T: Fn(&mut Vec<usize>)
@@ -23,18 +30,14 @@ impl<T> NumSeq<T>
     }
 }
 
-// impl<'a> NumSeqIter<'a> for NumSeq
-// {
-
-// }
-
 impl<T> Iterator for NumSeq<T>
     where T: Fn(&mut Vec<usize>)
 {
     type Item = usize;
     fn next(&mut self) -> Option<Self::Item> {
+        let value = *self.stack.get(0).unwrap();
         (self.calculation)(&mut self.stack);
-        Some(*self.stack.get(0).unwrap())
+        Some(value)
     }
 }
 
@@ -52,12 +55,10 @@ fn main()
         .initial(0)
         .initial(1);
 
-    dbg!(fibonacci.stack);
-
-    // for (i, n) in fibonacci.iter().take(10).enumerate()
-    // {
-    //     println!("[{}] {}", i, n);
-    // }
+    for (i, n) in fibonacci.take(10).enumerate()
+    {
+        println!("[{}] {}", i, n);
+    }
     
     // println!("- - -");
     
