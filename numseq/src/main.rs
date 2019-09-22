@@ -2,39 +2,63 @@ struct NumSeq<T>
     where T: Fn(&mut Vec<usize>)
 {
     calculation: T,
-    stack: Vec<usize>,
+    initial_values: Vec<usize>,
 }
-
-
-// impl<T> NumSeqIter for NumSeq<T>
-//     where T: Fn(&mut Vec<usize>)
-// {
-    
-// }
 
 impl<T> NumSeq<T>
     where T: Fn(&mut Vec<usize>)
 {
-    fn new(calculation: T) -> NumSeq<T>
+    fn new(calculation: T) -> Self
     {
         Self {
-            stack: vec!(),
             calculation,
+            initial_values: vec!(),
         }
     }
 
-    fn initial(mut self, num: usize) -> Self
+    fn iter(&self) -> NumSeqIter<'_, T>
     {
-        self.stack.push(num);
-        self
+        NumSeqIter::new(&self)
+    }
+
+    fn initial(self, num: usize) -> Self
+    {
+        let mut initial_values = self.initial_values;
+        initial_values.push(num);
+        
+        Self {
+            initial_values: initial_values.to_vec(),
+            calculation: self.calculation
+        }
+    }
+    
+}
+
+struct NumSeqIter<'a, T>
+    where T: Fn(&mut Vec<usize>)
+{
+    stack: Vec<usize>,
+    calculation: &'a T,
+}
+
+impl<'a, T> NumSeqIter<'a, T>
+    where T: Fn(&mut Vec<usize>)
+{
+    fn new(initial: &'a NumSeq<T>) -> Self
+    {
+        Self {
+            calculation: &initial.calculation,
+            stack: initial.initial_values.to_vec(),
+        }
     }
 }
 
-impl<T> Iterator for NumSeq<T>
+impl<T> Iterator for NumSeqIter<'_, T>
     where T: Fn(&mut Vec<usize>)
 {
     type Item = usize;
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<Self::Item>
+    {
         let value = *self.stack.get(0).unwrap();
         (self.calculation)(&mut self.stack);
         Some(value)
@@ -55,36 +79,36 @@ fn main()
         .initial(0)
         .initial(1);
 
-    for (i, n) in fibonacci.take(10).enumerate()
+    for (i, n) in fibonacci.iter().take(10).enumerate()
     {
         println!("[{}] {}", i, n);
     }
     
-    // println!("- - -");
+    println!("- - -");
     
-    // for (i, n) in fibonacci.iter().take(10).enumerate()
-    // {
-    //     println!("[{}] {}", i, n);
-    // }
+    for (i, n) in fibonacci.iter().take(10).enumerate()
+    {
+        println!("[{}] {}", i, n);
+    }
     
-    // println!("- - -");
+    println!("- - -");
     
-    // let tribonacci = NumSeq::new(
-    //     |stack|
-    //     {
-    //         let third = stack.pop().unwrap();
-    //         let second = stack.pop().unwrap();
-    //         let first = stack.pop().unwrap();
-    //         stack.push(second);
-    //         stack.push(third);
-    //         stack.push(first + second + third);
-    //     })
-    //     .initial(0)
-    //     .initial(1)
-    //     .initial(1);
+    let tribonacci = NumSeq::new(
+        |stack|
+        {
+            let third = stack.pop().unwrap();
+            let second = stack.pop().unwrap();
+            let first = stack.pop().unwrap();
+            stack.push(second);
+            stack.push(third);
+            stack.push(first + second + third);
+        })
+        .initial(0)
+        .initial(1)
+        .initial(1);
     
-    // for (i, n) in tribonacci.iter().take(10).enumerate()
-    // {
-    //     println!("[{}] {}", i, n);
-    // }
+    for (i, n) in tribonacci.iter().take(10).enumerate()
+    {
+        println!("[{}] {}", i, n);
+    }
 }
