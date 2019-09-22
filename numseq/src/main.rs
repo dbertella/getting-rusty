@@ -23,13 +23,18 @@ impl<T> NumSeq<T>
     }
 }
 
+// impl<'a> NumSeqIter<'a> for NumSeq
+// {
+
+// }
+
 impl<T> Iterator for NumSeq<T>
     where T: Fn(&mut Vec<usize>)
 {
-    type Item = Vec<usize>;
+    type Item = usize;
     fn next(&mut self) -> Option<Self::Item> {
         (self.calculation)(&mut self.stack);
-        Some(self.stack)
+        Some(*self.stack.get(0).unwrap())
     }
 }
 
