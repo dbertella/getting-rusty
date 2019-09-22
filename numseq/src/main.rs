@@ -21,15 +21,10 @@ impl<T> NumSeq<T>
         NumSeqIter::new(&self)
     }
 
-    fn initial(self, num: usize) -> Self
+    fn initial(mut self, num: usize) -> Self
     {
-        let mut initial_values = self.initial_values;
-        initial_values.push(num);
-        
-        Self {
-            initial_values: initial_values.to_vec(),
-            calculation: self.calculation
-        }
+        self.initial_values.push(num);
+        self
     }
     
 }
