@@ -12,7 +12,7 @@ impl<T> NumSeq<T>
     {
         Self {
             calculation,
-            initial_values: vec!(),
+            initial_values: Vec::new(),
         }
     }
 
@@ -54,7 +54,7 @@ impl<T> Iterator for NumSeqIter<'_, T>
     type Item = usize;
     fn next(&mut self) -> Option<Self::Item>
     {
-        let value = *self.stack.get(0).unwrap();
+        let value = self.stack[0];
         (self.calculation)(&mut self.stack);
         Some(value)
     }
