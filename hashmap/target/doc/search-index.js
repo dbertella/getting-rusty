@@ -1,0 +1,4 @@
+var N=null,E="",T="t",U="u",searchIndex={};
+var R=["hashing","hashmap","result","Hashing","MyHash"];
+searchIndex["hashmap"]={"doc":E,"i":[[0,R[0],R[1],E,N,N],[8,R[3],"hashmap::hashing",E,N,N],[10,R[0],E,E,0,[[["self"]],["usize"]]],[0,"my_hash",R[1],E,N,N],[3,R[4],"hashmap::my_hash",E,N,N],[11,"new",E,E,1,[[],["self"]]],[11,"insert",E,"Insert to hashmap ` # use hashmap::my_hash::MyHash; let…",1,[[["self"],["k"],[T]]]],[11,"get",E,E,1,[[["self"],["k"]],[["option"],[T]]]],[11,"into",E,E,1,[[],[U]]],[11,"from",E,E,1,[[[T]],[T]]],[11,"try_from",E,E,1,[[[U]],[R[2]]]],[11,"try_into",E,E,1,[[],[R[2]]]],[11,"borrow",E,E,1,[[["self"]],[T]]],[11,"borrow_mut",E,E,1,[[["self"]],[T]]],[11,"type_id",E,E,1,[[["self"]],["typeid"]]]],"p":[[8,R[3]],[3,R[4]]]};
+initSearch(searchIndex);addSearchOptions(searchIndex);
