@@ -36,7 +36,7 @@ impl<K, T> MyHash<K, T>
     ///     bla.insert("bla".to_string(), "Blabla");
     ///     assert!(bla.get("bla".to_string()), Some("Blabla"));
     /// ```
-    pub fn insert(&mut self, key: K, value: T)
+    pub fn insert(&mut self, key: K, value: T) -> Result<(), &str>
     {
         let index = self.calc_index(&key);
 
@@ -47,16 +47,16 @@ impl<K, T> MyHash<K, T>
                 Some((k, _)) => {
                     if k == &key {
                         self.inner[i] = Some((key, value));
-                        return;
+                        return Ok(());
                     }
                 },
                 None => {
                     self.inner[i] = Some((key, value));
-                    return;
+                    return Ok(());
                 },
             }
         }
-        panic!("No space left");
+        Err("No space left")
     }
 
     pub fn get(&self, key: K) -> Option<&T>
@@ -121,18 +121,36 @@ impl<K, T> MyHash<K, T>
     }
 }
 
-// struct MyHashIter<K, T>
-// {
-//     count: usize
-// }
+struct MyHashIter<K, T>
+{
+    count: usize,
+    inner: Vec<Option<(K, T)>>
+}
 
-// impl<K, T> Iterator for MyHashIter<K, T>
-// {
-//     type Item = (K, T);
-//     fn next(&mut self) -> Self::Item
-//     {
-//         let count = self.count;
-//         self.count += 1;
-//         self.inner[count]
-//     }
-// }
+impl<K, T> MyHashIter<K, T>
+{
+     fn new(inner_vec: Vec<Option<(K, T)>>) -> Self
+    {
+        Self { count: 0, inner: inner_vec }
+    }
+}
+
+impl<K, T> Iterator for MyHashIter<K, T>
+
+{
+    type Item = (K, T);
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        let count = self.count;
+        for i in count..self.inner.len()
+        {
+            if self.inner[i].is_some()
+            {
+                self.count += 1;
+                return self.inner[i] // dunno what to do here
+            }
+            self.count += 1;
+        }
+        None
+    }
+}
