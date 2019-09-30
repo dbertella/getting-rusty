@@ -8,7 +8,7 @@ pub struct MyHash<K, T>
 }
 
 impl<K, T> MyHash<K, T>
-    where K: Hashing + PartialEq,
+    where K: Hashing + Clone + PartialEq,
           T: Clone
 {
     fn calc_index(&self, key: &K) -> usize
@@ -80,17 +80,18 @@ impl<K, T> MyHash<K, T>
 
     // Removes a key from the map, returning the value at
     // the key if the key was previously in the map.
-    pub fn remove(&mut self, key: K) -> Option<&T>
+    pub fn remove(&mut self, key: K) -> Option<T>
     {
         let index = self.calc_index(&key);
+        let inner_vec = &self.inner.to_vec(); // Had to add Clone trait to K :-(
         for i in index..index+BUCKET_SIZE
         {
-            match &self.inner[i]
+            match &inner_vec[i]
             {
                 Some((k, v)) => {
                     if k == &key {
                         self.inner[i] = None;
-                        return Some(v)
+                        return Some(v.clone())
                     }
                 },
                 None => return None,
@@ -109,22 +110,29 @@ impl<K, T> MyHash<K, T>
     // Returns the number of elements in the map.
     pub fn len(&self) -> usize
     {
-        self.inner.len()
+        let mut count = 0;
+        for i in 0..self.inner.len()
+        {
+            if self.inner[i].is_some() {
+                count += 1;
+            }
+        }
+        count
     }
 }
 
-struct MyHashIter<K, T>
-{
-    count: usize
-}
+// struct MyHashIter<K, T>
+// {
+//     count: usize
+// }
 
-impl<K, T> Iterator for MyHashIter<K, T>
-{
-    type Item = (K, T);
-    fn next(&mut self) -> Self::Item
-    {
-        let count = self.count;
-        self.count += 1;
-        self.inner[count]
-    }
-}
+// impl<K, T> Iterator for MyHashIter<K, T>
+// {
+//     type Item = (K, T);
+//     fn next(&mut self) -> Self::Item
+//     {
+//         let count = self.count;
+//         self.count += 1;
+//         self.inner[count]
+//     }
+// }
