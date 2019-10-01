@@ -1,3 +1,4 @@
+use std::slice::Iter;
 use crate::hashing::Hashing;
 
 const BUCKET_SIZE: usize = 4;
@@ -119,38 +120,103 @@ impl<K, T> MyHash<K, T>
         }
         count
     }
-}
 
-struct MyHashIter<K, T>
-{
-    count: usize,
-    inner: Vec<Option<(K, T)>>
-}
-
-impl<K, T> MyHashIter<K, T>
-{
-     fn new(inner_vec: Vec<Option<(K, T)>>) -> Self
+    pub fn keys(&self) -> MyHashKeyIter<'_, K, T>
     {
-        Self { count: 0, inner: inner_vec }
+        MyHashKeyIter::new(self.inner.iter())
+    }
+
+    pub fn values(&self) -> MyHashValueIter<'_, K, T>
+    {
+        MyHashValueIter::new(self.inner.iter())
+    }
+
+    pub fn items(&self) -> MyHashItemIter<'_, K, T>
+    {
+        MyHashItemIter::new(self.inner.iter())
     }
 }
 
-impl<K, T> Iterator for MyHashIter<K, T>
-
+pub struct MyHashKeyIter<'a, K, T>
 {
-    type Item = (K, T);
+    iter: MyHashItemIter<'a, K, T>
+}
+
+impl<'a, K, T> MyHashKeyIter<'a, K, T>
+{
+    fn new(iter: Iter<'a, Option<(K, T)>>) -> Self
+    {
+        Self { iter: MyHashItemIter::new(iter) }
+    }
+}
+
+
+impl<'a, K, T> Iterator for MyHashKeyIter<'a, K, T>
+{
+    type Item = &'a K;
     fn next(&mut self) -> Option<Self::Item>
     {
-        let count = self.count;
-        for i in count..self.inner.len()
+        match self.iter.next()
         {
-            if self.inner[i].is_some()
-            {
-                self.count += 1;
-                return self.inner[i] // dunno what to do here
-            }
-            self.count += 1;
+            Some((k, _)) => Some(k),
+            None => None,
         }
-        None
+    }
+}
+
+
+pub struct MyHashValueIter<'a, K, T>
+{
+    iter: MyHashItemIter<'a, K, T>
+}
+
+impl<'a, K, T> MyHashValueIter<'a, K, T>
+{
+    fn new(iter: Iter<'a, Option<(K, T)>>) -> Self
+    {
+        Self { iter: MyHashItemIter::new(iter) }
+    }
+}
+
+impl<'a, K, T> Iterator for MyHashValueIter<'a, K, T>
+{
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        match self.iter.next()
+        {
+            Some((_, v)) => Some(v),
+            None => None,
+        }
+    }
+}
+
+pub struct MyHashItemIter<'a, K, T>
+{
+    iter: Iter<'a, Option<(K, T)>>
+}
+
+impl<'a, K, T> MyHashItemIter<'a, K, T>
+{
+    fn new(iter: Iter<'a, Option<(K, T)>>) -> Self
+    {
+        Self { iter }
+    }
+}
+
+impl<'a, K, T> Iterator for MyHashItemIter<'a, K, T>
+{
+    type Item = &'a (K, T);
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        loop {
+            let outer = self.iter.next();
+            if outer.is_none() {
+                return None
+            }
+            if let Some(inner) = outer {
+                return inner.as_ref()
+            }
+        }
     }
 }
