@@ -131,7 +131,7 @@ impl<K, T> MyHash<K, T>
         MyHashValueIter::new(self.inner.iter())
     }
 
-    pub fn items(&self) -> MyHashItemIter<'_, K, T>
+    pub fn pair(&self) -> MyHashItemIter<'_, K, T>
     {
         MyHashItemIter::new(self.inner.iter())
     }
@@ -209,14 +209,14 @@ impl<'a, K, T> Iterator for MyHashItemIter<'a, K, T>
     type Item = &'a (K, T);
     fn next(&mut self) -> Option<Self::Item>
     {
-        loop {
-            let outer = self.iter.next();
-            if outer.is_none() {
-                return None
-            }
-            if let Some(inner) = outer {
-                return inner.as_ref()
+        for pair in self.iter.by_ref()
+        {
+            match pair
+            {
+                Some(pair) => return Some(pair),
+                None => continue,
             }
         }
+        None
     }
 }
