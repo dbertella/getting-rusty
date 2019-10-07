@@ -3,16 +3,17 @@ use crate::hashing::Hashing;
 
 const BUCKET_SIZE: usize = 4;
 
+#[derive(Debug)]
 pub struct MyHash<K, T>
 {
     inner: Vec<Option<(K, T)>>
 }
 impl<K, T> MyHash<K, T>
 where
-    K: Hashing + Clone + PartialEq,
+    K: Hashing + PartialEq,
     T: Clone,
 {
-    fn calc_index(&self, key: &K) -> usize {
+    pub fn calc_index(&self, key: &K) -> usize {
         key.hashing() % (self.inner.len() / BUCKET_SIZE) * BUCKET_SIZE
     }
 
@@ -70,13 +71,15 @@ where
     // the key if the key was previously in the map.
     pub fn remove(&mut self, key: K) -> Option<T> {
         let index = self.calc_index(&key);
-        let inner_vec = &self.inner.to_vec(); // Had to add Clone trait to K :-(
+
         for i in index..index + BUCKET_SIZE {
-            match &inner_vec[i] {
-                Some((k, v)) => {
+            match &self.inner[i] {
+                Some((k, _)) => {
                     if k == &key {
-                        self.inner[i] = None;
-                        return Some(v.clone());
+                        if let Some((_, value)) = self.inner.remove(index) {
+                            self.inner.insert(index + BUCKET_SIZE, None);
+                            return Some(value);
+                        }
                     }
                 }
                 None => return None,

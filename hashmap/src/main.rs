@@ -10,9 +10,11 @@ fn main() {
     bla.insert("bla4".to_string(), "Blabla4").expect("bla");
     bla.insert("bla5".to_string(), "Blabla5").expect("bla");
     // bla.insert("bla6".to_string(), "Blabla6").expect("bla");
-    // dbg!(bla.remove("bla".to_string()));
+    println!("{:?}", bla.calc_index(&"bla5".to_string()));
+    dbg!(bla.remove("bla1".to_string()));
 
-    println!("{}", bla.len());
+    println!("{:?}", bla);
+    println!("{:?}", bla.calc_index(&"bla5".to_string()));
 
     // dbg!(&my_iter.next());
     for (key, value) in bla.pairs() {
