@@ -2,24 +2,26 @@ use hashmap::my_hash::MyHash;
 
 fn main() {
     let mut bla = MyHash::new();
-    bla.insert("bla".to_string(), "Blabla");
-    bla.insert("bla1".to_string(), "Blabla");
-    bla.insert("bla2".to_string(), "Blabla");
-    bla.insert("bla3".to_string(), "Blabla");
-    bla.insert("bla4".to_string(), "Blabla");
-    bla.insert("bla5".to_string(), "Blabla");
-    bla.insert("bla6".to_string(), "Blabla");
+    bla.insert("bla".to_string(), "Blabla").expect("bla");
+    bla.insert("bla1".to_string(), "Blabla1").expect("bla");
+
+    bla.insert("bla2".to_string(), "Blabla2").expect("bla");
+    bla.insert("bla3".to_string(), "Blabla3").expect("bla");
+    bla.insert("bla4".to_string(), "Blabla4").expect("bla");
+    bla.insert("bla5".to_string(), "Blabla5").expect("bla");
+    // bla.insert("bla6".to_string(), "Blabla6").expect("bla");
     // dbg!(bla.remove("bla".to_string()));
 
     println!("{}", bla.len());
 
-    for key in bla.keys()
-    {
-        println!("{}", key);
+    // dbg!(&my_iter.next());
+    for (key, value) in bla.pairs() {
+        println!("{} {}", key, value);
     }
+
+    // bla.items().test()
 
     // bla.clear();
     // dbg!(bla.get("bla".to_string()));
-
 
 }
