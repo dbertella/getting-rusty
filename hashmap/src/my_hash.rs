@@ -18,8 +18,14 @@ where
     }
 
     pub fn new() -> Self {
+        Self::with_capacity(16)
+    }
+
+    // Creates an empty HashMap with the specified capacity.
+    pub fn with_capacity(capacity: usize) -> Self
+    {
         let mut new_vec = Vec::new();
-        for _ in 0..(16 * BUCKET_SIZE) {
+        for _ in 0..(capacity * BUCKET_SIZE) {
             new_vec.push(None)
         }
         Self { inner: new_vec }
@@ -48,7 +54,7 @@ where
                 }
             }
         }
-        Err("No space left")
+        self.grow()
     }
 
     pub fn get(&self, key: K) -> Option<&T> {
@@ -103,6 +109,17 @@ where
             }
         }
         count
+    }
+
+    fn grow(&mut self) -> Result<(), &str>
+    {
+        let content = self.pairs();
+        self.inner.with_capacity(self.inner.len() * 2)
+        for (k, v) in content
+        {
+            new_map.insert(k, v);
+        }
+        Err("Not enough space on memory")
     }
 
     pub fn keys(&self) -> MyHashKeyIter<'_, K, T> {
