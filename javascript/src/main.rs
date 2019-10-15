@@ -3,6 +3,8 @@ use js::{eval, Declare, Expression, Instruction, Primitive, Lookup,Scope, Scopes
 fn main() -> Result<(), String> {
     let mut global = Scope::new();
     let mut local = Scopes::new();
+
+    // let x = 1.0
     let declare_x = Expression::Instruction(
         Box::new(
             Instruction::Declare(
@@ -16,6 +18,7 @@ fn main() -> Result<(), String> {
         )
     );
 
+    // let y = x
     let declare_y = Expression::Instruction(
         Box::new(
             Instruction::Declare(
