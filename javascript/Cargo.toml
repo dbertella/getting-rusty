@@ -1,0 +1,10 @@
+[package]
+name = "javascript"
+version = "0.1.0"
+authors = ["dbertella <daniele.bertella@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "js"
+
+[dependencies]
